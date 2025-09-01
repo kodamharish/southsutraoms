@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 13px; margin: 0; padding: 0; }
+  .invoice-box { width: 794px; margin: 0 auto; padding: 0; border: 1px solid #000; }
+  table { width: 100%; border-collapse: collapse; }
+  td, th { border: 1px solid #000; padding: 6px; vertical-align: top; }
+  .no-border td, .no-border th { border: none; }
+  .logo { max-height: 70px; }
+  .title { font-weight: bold; font-size: 18px; text-align: right; }
+  .bold { font-weight: bold; }
+  .center { text-align: center; }
+  .right { text-align: right; }
+  .left { text-align: left; }
+  .small { font-size: 12px; }
+  .signature { text-align: center; padding-top: 30px; border-top: 1px solid #000; }
+  @page { size: A4; margin: 12mm; }
+</style>
+</head>
+<body>
+<div class="invoice-box">
+
+  <!-- Header -->
+  <table class="no-border">
+    <tr>
+      <td style="width:65%; border:none;">
+        <img src="{% static 'images/logo.png' %}" class="logo" alt="Logo"><br>
+        <b>INFAB AGRO FOODS PVT LTD</b><br>
+        125/3 Kanminike Village Hejjala Circle<br>
+        South taluk near featherlite Bangalore<br>
+        Bangalore Karnataka 562109 India<br>
+        GSTIN 29AAHCI1372F1ZK<br>
+        Email: infabfoods@gmail.com
+      </td>
+      <td style="width:35%; border:none;" class="title">
+        TAX INVOICE
+      </td>
+    </tr>
+  </table>
+
+  <!-- Invoice meta -->
+  <table>
+    <tr>
+      <td><b>Invoice No</b><br>{{ orders.invoice_no }}</td>
+      <td><b>Invoice Date</b><br>{{ orders.order_date|date:"d/m/Y" }}</td>
+      <td><b>Terms</b><br>{{ orders.terms }}</td>
+      <td><b>Place of Supply</b><br>{{ orders.place_of_supply }}</td>
+      <td><b>Sales person</b><br>{{ orders.sales_person }}</td>
+    </tr>
+  </table>
+
+  <!-- Bill To -->
+  <table>
+    <tr>
+      <td style="width:100%;">
+        <b>Bill To</b><br>
+        <b>{{ orders.customer.full_name }}</b><br>
+        {{ orders.customer.address }}<br>
+        {{ orders.customer.city }} - {{ orders.customer.pin }} {{ orders.customer.shop_state }}<br>
+        GSTIN: {{ orders.customer.gstin }}
+      </td>
+    </tr>
+  </table>
+
+  <!-- Items -->
+  <table>
+    <thead>
+      <tr class="center">
+        <th>#</th>
+        <th>Item &amp; Description</th>
+        <th>MRP</th>
+        <th>Discount</th>
+        <th>Batch Reference#</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        {% if orders.customer.shop_state == "Karnataka" %}
+          <th>CGST%</th><th>CGST Amt</th>
+          <th>SGST%</th><th>SGST Amt</th>
+        {% else %}
+          <th colspan="2">IGST%</th>
+          <th colspan="2">IGST Amt</th>
+        {% endif %}
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in orderitems %}
+      <tr>
+        <td class="center">{{ forloop.counter }}</td>
+        <td>{{ item.product.name }}<br><span class="small">HSN: {{ item.product.hsn_code }}</span></td>
+        <td class="right">{{ item.price|floatformat:2 }}</td>
+        <td class="center">{{ item.discount_percentage|floatformat:2 }}%</td>
+        <td class="center">{{ item.product.batch_number }}</td>
+        <td class="right">{{ item.quantity }}</td>
+        <td class="right">{{ item.price|floatformat:2 }}</td>
+
+        {% if orders.customer.shop_state == "Karnataka" %}
+          <td class="right">{{ item.cgst_percent|floatformat:2 }}%</td>
+          <td class="right">{{ item.cgst_amount|floatformat:2 }}</td>
+          <td class="right">{{ item.sgst_percent|floatformat:2 }}%</td>
+          <td class="right">{{ item.sgst_amount|floatformat:2 }}</td>
+        {% else %}
+          <td colspan="2" class="center">{{ item.igst_percent|floatformat:2 }}%</td>
+          <td colspan="2" class="right">{{ item.igst_amount|floatformat:2 }}</td>
+        {% endif %}
+
+        <td class="right">{{ item.total|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Totals and Notes -->
+  <table>
+    <tr>
+      <!-- Notes -->
+      <td style="width:70%; vertical-align:top;">
+        <b>Total in Words</b><br>
+        <i>{{ orders.total_in_words }}</i><br><br>
+
+        <b>Notes</b><br>
+        {{ orders.notes }}<br><br>
+
+        <b>Bank Name:</b> {{ orders.bank_name }}<br>
+        <b>Account no:</b> {{ orders.bank_account_no }}<br>
+        <b>IFSC Code:</b> {{ orders.bank_ifsc }}<br>
+        <b>Branch:</b> {{ orders.bank_branch }}<br><br>
+
+        <b>Terms & Conditions</b>
+        <ol class="small">
+          <li>Payment must be made within the due date from the invoice date.</li>
+          <li>Accepted payment methods include Bank Transfer, UPI, DD, Cheque.</li>
+          <li>Cash payments are not accepted.</li>
+          <li>Prices are exclusive of applicable taxes.</li>
+          <li>Orders cannot be canceled once processed.</li>
+          <li>Refund/exchange only for defective/damaged goods.</li>
+          <li>Responsibility ceases for weight once box tape is tampered.</li>
+        </ol>
+
+        <img src="{% static 'images/qr.png' %}" alt="QR Code" style="width:120px;height:120px;"><br>
+        <span class="small">Scan the QR code to make the payment</span>
+      </td>
+
+      <!-- Totals -->
+      <td style="width:30%; vertical-align:top;">
+        <table style="width:100%; border-collapse:collapse;">
+          <tr><td>Sub Total</td><td class="right">{{ orders.subtotal|floatformat:2 }}</td></tr>
+          {% if orders.customer.shop_state == "Karnataka" %}
+            <tr><td>CGST</td><td class="right">{{ orders.cgst_total|floatformat:2 }}</td></tr>
+            <tr><td>SGST</td><td class="right">{{ orders.sgst_total|floatformat:2 }}</td></tr>
+          {% else %}
+            <tr><td>IGST</td><td class="right">{{ orders.igst_total|floatformat:2 }}</td></tr>
+          {% endif %}
+          <tr><td class="bold">Total</td><td class="right bold">{{ orders.grand_total|floatformat:2 }}</td></tr>
+        </table>
+        <div class="signature">Authorized Signature</div>
+      </td>
+    </tr>
+  </table>
+
+</div>
+</body>
+</html>

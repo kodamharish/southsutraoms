@@ -1,0 +1,291 @@
+{% extends 'company_admin/base.html' %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        background: linear-gradient(120deg, #fff5e6 60%, #fef2e6 100%);
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .card {
+        border-radius: 1.2rem;
+        box-shadow: 0 6px 32px rgba(96, 31, 47, 0.10);
+        width: 100%;
+        max-width: 1300px;
+        margin: 0 auto;
+        border: none;
+        background: #fff;
+    }
+
+    .form-label {
+        font-weight: bold !important;
+        color: #601F2F;
+    }
+
+    .user-btn {
+        background: linear-gradient(90deg, #ffb347 0%, #601F2F 100%);
+        color: #fff;
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border: none;
+        box-shadow: 0 2px 8px rgba(255, 179, 71, 0.25);
+    }
+
+    .user-btn:hover {
+        background: linear-gradient(90deg, #601F2F 0%, #ffb347 100%);
+        transform: translateY(-1px);
+    }
+
+    .gradient-title {
+        background: linear-gradient(90deg, #601F2F 10%, #ffb347 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        border: 1.5px solid #e2e8f0;
+        background: #fdfdfd;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #ffb347;
+        box-shadow: 0 0 0 2px #ffb34733;
+    }
+
+    .input-group-text {
+        background: #fdfdfd;
+    }
+
+    label.form-label {
+        font-weight: 500;
+        letter-spacing: 0.2px;
+    }
+
+    .input-group .btn {
+        border-radius: 0 0.5rem 0.5rem 0;
+    }
+
+    .input-group input {
+        border-radius: 0.5rem 0 0 0.5rem;
+    }
+
+    @media (max-width: 991.98px) {
+        .card {
+            max-width: 98%;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .card {
+            max-width: 100%;
+            padding: 1rem !important;
+        }
+    }
+</style>
+
+<div class="container py-2">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card p-4">
+                <h2 class="text-center mb-4 gradient-title">
+                    {% if edit_customer %}Edit{% else %}Add{% endif %} Customer
+                </h2>
+
+                <form method="post" enctype="multipart/form-data"
+                    action="{% if edit_customer %}{% url 'edit_customer' edit_customer.id %}{% else %}{% url 'add_customer' %}{% endif %}">
+                    {% csrf_token %}
+                    <div class="row g-3">
+
+                        <!-- Assigned User -->
+                        <div class="col-md-4">
+                            <label for="user" class="form-label">Assigned User</label>
+                            <select class="form-select" name="user" id="user" required>
+                                <option value="" disabled selected hidden>-- Select User --</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if edit_customer and edit_customer.user.id == user.id %} selected {% endif %}>{{ user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Customer Full Name -->
+                        <div class="col-md-4">
+                            <label for="full_name" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" name="full_name" id="full_name" placeholder="Enter Full Name"
+                                value="{{ edit_customer.full_name|default:'' }}" required>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="col-md-4">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone_number" id="phone_number"  placeholder="Enter phone No"
+                                value="{{ edit_customer.phone_number|default:'' }}" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-4">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" id="email"  placeholder="Enter a valid Email Address"
+                                value="{{ edit_customer.email|default:'' }}" required>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-md-8">
+                            <label for="address" class="form-label">Customer Address</label>
+                            <textarea class="form-control" name="address" id="address" rows="1"  placeholder="Enter Address"
+                                required>{{ edit_customer.address|default:'' }}</textarea>
+                        </div>
+
+                        <!-- City -->
+                        <div class="col-md-4">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" name="city" id="city"  placeholder="Enter City"
+                                value="{{ edit_customer.city|default:'' }}" required>
+                        </div>
+
+                        <!-- State -->
+                        <div class="col-md-4">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" name="state" id="state"  placeholder="Enter State"
+                                value="{{ edit_customer.state|default:'' }}" required>
+                        </div>
+
+                        <!-- Pincode -->
+                        <div class="col-md-4">
+                            <label for="pincode" class="form-label">Pincode</label>
+                            <input type="text" class="form-control" name="pincode" id="pincode" placeholder="Enter Pincode"
+                                value="{{ edit_customer.pincode|default:'' }}" required>
+                        </div>
+
+                        <!-- Shop Name -->
+                        <div class="col-md-4">
+                            <label for="shop_name" class="form-label">Shop Name</label>
+                            <input type="text" class="form-control" name="shop_name" id="shop_name" placeholder="Enter Shop Name"
+                                value="{{ edit_customer.shop_name|default:'' }}" required> 
+                        </div>
+
+                        <!-- Shop Type -->
+                        <div class="col-md-4">
+                            <label for="shop_type" class="form-label">Shop Type</label>
+                            <select class="form-select" name="shop_type" id="shop_type">
+                                <option value="" disabled hidden {% if not edit_customer.shop_type %} selected {% endif %}>-- Select Shop Type --</option>
+                                <option value="NMT" {% if edit_customer.shop_type == 'NMT' %} selected{% endif %}>National Modern Trade</option>
+                                <option value="MT" {% if edit_customer.shop_type == 'MT' %}selected{% endif %}>Modern Trade</option>
+                                <option value="SMT" {% if edit_customer.shop_type == 'SMT' %}selected{% endif %}>Semi Modern Trade</option>
+                                <option value="SPECIAL" {% if edit_customer.shop_type == 'SPECIAL' %}selected{% endif %}>Speciality Store</option>
+                                <option value="GT" {% if edit_customer.shop_type == 'GT' %}selected{% endif %}>General Trade</option>
+                            </select>
+                        </div>
+
+                        <!-- GST Number -->
+                        <div class="col-md-4">
+                            <label for="gst_number" class="form-label">GST Number</label> 
+                            <input type="text" class="form-control" name="gst_number" id="gst_number" placeholder="Enter valid GST no"
+                                value="{{ edit_customer.gst_number|default:'' }}">
+                        </div>
+
+                        <!-- Shop Address -->
+                        <div class="col-md-12">
+                            <label for="shop_address" class="form-label">Shop Address</label>
+                            <textarea class="form-control" name="shop_address" id="shop_address" rows="1" placeholder="Enter Shop Address"
+                                required>{{ edit_customer.shop_address|default:'' }}</textarea>
+                        </div>
+
+                        <!-- Shop City -->
+                        <div class="col-md-4">
+                            <label for="shop_city" class="form-label">Shop City</label>
+                            <input type="text" class="form-control" name="shop_city" id="shop_city" placeholder="Enter Shop city"
+                                value="{{ edit_customer.shop_city|default:'' }}" required>
+                        </div>
+
+                        <!-- Shop State -->
+                        <div class="col-md-4">
+                            <label for="shop_state" class="form-label">Shop State</label>
+                            <input type="text" class="form-control" name="shop_state" id="shop_state" placeholder="Enter Shop State"
+                                value="{{ edit_customer.shop_state|default:'' }}" required>
+                        </div>
+
+                        <!-- Shop Pincode -->
+                        <div class="col-md-4">
+                            <label for="shop_pincode" class="form-label">Shop Pincode</label>
+                            <input type="text" class="form-control" name="shop_pincode" id="shop_pincode" placeholder="Enter Shop Pincode"
+                                value="{{ edit_customer.shop_pincode|default:'' }}" required>
+                        </div>
+
+                        <!-- Old Stock Quantity -->
+                        <div class="col-md-4">
+                            <label for="old_stock_quantity" class="form-label">Old Stock Quantity</label>
+                            <input type="number" class="form-control" name="old_stock_quantity" id="old_stock_quantity" placeholder="Enter Old Qunatity"
+                                value="{{ edit_customer.old_stock_quantity|default:0 }}">
+                        </div>
+
+                        <!-- Discount -->
+                        <div class="col-md-4">
+                            <label for="discount" class="form-label">Discount (%)</label>
+                            <input type="number" step="0.01" class="form-control" name="discount" id="discount" 
+                                value="{{ edit_customer.discount|default:0.00 }}">
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-4">
+                            <label for="is_active" class="form-label">Status</label>
+                            <select class="form-select" name="is_active" id="is_active" required>
+                                <option value="true" {% if not edit_customer or edit_customer.is_active %} selected {% endif %}>Active</option>
+                                <option value="false" {% if edit_customer and not edit_customer.is_active %} selected {% endif %}>Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Shop Images Upload -->
+                        <div class="col-md-6">
+                            <label for="shop_images" class="form-label">Upload Shop Images</label>
+                            <input class="form-control" type="file" name="shop_images" id="shop_images" multiple>
+                        </div>
+
+                        <!-- Existing Images (Edit Only) -->
+                        {% if edit_customer %}
+                        <div class="col-md-12">
+                            <label class="form-label">Uploaded Images</label>
+                            <div class="row">
+                                {% for image in edit_customer.shop_images.all %}
+                                <div class="col-md-2 mb-2">
+                                    <div class="border p-2 text-center">
+                                        <img src="{{ image.image.url }}" class="img-fluid mb-1"
+                                            style="max-height: 100px;">
+                                        {% if image.description %}
+                                        <p class="small mb-0">{{ image.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Submit Button -->
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-dark w-100 mt-3">
+                                <i class="fas fa-user-{% if edit_customer %}edit{% else %}plus{% endif %} me-2"></i>
+                                {% if edit_customer %} Update {% else %} Add {% endif %} Customer
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

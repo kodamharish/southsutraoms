@@ -1,0 +1,320 @@
+{% extends 'company_admin/base.html' %}
+{% load static %}
+{% block content %}
+
+<title>Sales Receipt </title>
+
+<style>
+    body {
+        background: linear-gradient(120deg, #f8f9fa 0%, #e9ecef 100%);
+
+        padding: 20px 0;
+    }
+
+    .print-btn {
+        background-color: rgb(255, 195, 106);
+        color: rgb(0, 0, 0);
+        border: none;
+        border-radius: 0.5rem;
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .print-btn:hover {
+        background-color: rgb(255, 195, 106);
+        color: rgb(0, 0, 0);
+        transform: translateY(-1px);
+    }
+
+    .receipt-container {
+        max-width: 400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        font-family: 'Courier New', monospace;
+    }
+
+    .receipt {
+        padding: 20px;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        font-size: 12px;
+        line-height: 1.4;
+        color: #333;
+    }
+
+    .receipt-header {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 2px dashed #333;
+        padding-bottom: 15px;
+    }
+
+    .company-name {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .company-details {
+        font-size: 11px;
+        margin-bottom: 3px;
+    }
+
+    .receipt-info {
+        margin-bottom: 15px;
+        border-bottom: 1px dashed #333;
+        padding-bottom: 10px;
+    }
+
+    .receipt-info div {
+        margin-bottom: 3px;
+    }
+
+    .items-section {
+        margin-bottom: 15px;
+    }
+
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3px;
+        font-size: 11px;
+    }
+
+    .item-name {
+        flex: 2;
+        text-align: left;
+    }
+
+    .item-qty,
+    .item-price,
+    .item-subtotal,
+    .item-tax-amount,
+    .item-total {
+        flex: 1;
+        text-align: right;
+        padding-left: 6px;
+    }
+
+    /* .item-qty {
+        width: 30px;
+        text-align: center;
+    }
+
+    .item-price {
+        width: 60px;
+        text-align: right;
+    }
+
+    .item-total {
+        width: 70px;
+        text-align: right;
+    } */
+
+    .totals-section {
+        border-top: 1px dashed #333;
+        padding-top: 10px;
+        margin-bottom: 15px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+
+    .total-row.grand-total {
+        font-weight: bold;
+        font-size: 13px;
+        border-top: 1px solid #333;
+        padding-top: 5px;
+        margin-top: 5px;
+    }
+
+    .payment-section {
+        border-top: 1px dashed #333;
+        padding-top: 10px;
+        margin-bottom: 15px;
+    }
+
+    .footer {
+        text-align: center;
+        border-top: 2px dashed #333;
+        padding-top: 15px;
+        font-size: 11px;
+    }
+
+    .customer-info {
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    @media print {
+        body {
+        margin: 0;
+        padding: 0;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+        .receipt-container, .receipt-container * {
+            visibility: visible;
+        }
+
+        .print-btn, .back-btn {
+            display: none !important;
+        }
+
+        .receipt-container {
+            box-shadow: none;
+            max-width: none;
+            width: 100%;
+        }
+        /* .receipt-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            box-shadow: none;
+        } */
+        @page {
+            size: A4;  
+            margin: 10mm;  
+        }
+    }
+
+    .back-btn {
+        background: linear-gradient(90deg, #6c757d, #495057);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 8px 16px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-right: 10px;
+    }
+
+    .back-btn:hover {
+        background: linear-gradient(90deg, #495057, #6c757d);
+        color: white;
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="container">
+    <div class="receipt-container">
+        <div class="receipt">
+            <div class="receipt-header">
+                <div class="company-name">SOUTH SUTRA</div>
+                <div class="company-details">INFAB AGRO FOODS Pvt Ltd,</div>
+                <div class="company-details">#125/3 Kanninike Village,</div>
+                <div class="company-details">Hejjala Circle South</div>
+                <div class="company-details">Taluk, Bangalore - 562109</div>
+                <div class="company-details" style="margin-top: 10px;">Phone: 8971607888</div>
+            </div>
+
+            <div class="receipt-info">
+                <div><strong>Date:</strong> {{ orders.order_date|date:'d-m-Y' }}</div>
+                <div>{% if orders.is_free_sample %}<strong>Free Sample</strong> {% else %}<strong>Receipt code:</strong> {{ orders.invoice_number }} {% endif %}</div>
+            </div>
+
+            <div class="customer-info">
+                <strong>Customer:</strong> {{ orders.customer.full_name }}
+            </div>
+
+            <div class="items-section mt-3">
+                <div class="item-row"
+                    style="font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 8px;">
+                    <div class="item-name">Item</div>
+                    <div class="item-qty">Qty</div>
+                    <div class="item-price">Price</div>
+                    <div class="item-subtotal">Subtotal</div>
+                    <div class="item-tax-amount">GST</div>
+                    <div class="item-total">Total </div>
+                </div>
+                <div id="itemsList">
+                    {% for item in orderitems %}
+                    <div class="item-row" style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <div class="item-name">{{ item.product.name }}</div>
+                        <div class="item-qty">{{ item.quantity }}</div>
+                        <div class="item-price">₹{{ item.price|floatformat:2 }}</div>
+                        <div class="item-subtotal">₹{{ item.sub_total|floatformat:2 }}</div>
+                        <div class="item-tax-amount">₹{{ item.gst_amount|floatformat:2 }}</div>
+                        <div class="item-total">₹{{ item.total|floatformat:2 }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="totals-section mt-4">
+                <div class="total-row">
+                    <span>Before Tax Amount</span>
+                    <span>₹{{ orders.before_tax_amount|floatformat:2 }}</span>
+                </div>
+
+                <div class="total-row">
+                    <span>Tax Amount ({{ orders.tax_percentage }}%)</span>
+                    <span>₹{{ orders.tax_amount|floatformat:2 }}</span>
+                </div>
+                <div class="total-row">
+                    <span>After Tax Amount</span>
+                    <span>₹{{ orders.after_tax_amount|floatformat:2 }}</span>
+                </div>
+                <div class="total-row">
+                    <span>Discount Amount</span>
+                    <span>₹{{ orders.discount_amount|floatformat:2 }}</span>
+                </div>
+                <div class="total-row grand-total" style="font-weight: bold;">
+                    <span>Grand Total</span>
+                    <span>₹{{ orders.total_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            <div class="payment-section mt-3">
+                <div class="total-row">
+                    <span>Amount Paid</span>
+                    <span>₹{{ orders.amount_paid|floatformat:2 }}</span>
+                </div>
+                <div class="total-row">
+                    <span>Balance</span>
+                    <span>₹{{ orders.balance_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            <div class="footer mt-4">
+                <div style="margin-bottom: 10px;">
+                    <strong>Customer:</strong> {{ orders.customer.full_name }}
+                </div>
+                <div style="border-top: 1px dashed #333; padding-top: 10px;">
+                    <strong>THANK YOU</strong>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center mt-2">
+        <!-- <a href="sales_table.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Sales
+            </a> -->
+        <button class="print-btn" onclick="window.print()">
+            <i class="fas fa-print"></i> Print
+        </button>
+    </div>
+</div>
+
+
+{% endblock content %}
